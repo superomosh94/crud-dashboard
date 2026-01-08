@@ -1,0 +1,282 @@
+<div class="form-container" style="max-width: 1000px;">
+    <div class="form-header">
+        <h2>Create New Order</h2>
+        <p>Process a new transaction and update inventory automatically.</p>
+    </div>
+
+    <form id="orderForm" action="/orders" method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Order Number</label>
+                <input type="text" name="order_number" class="form-control" value="<%= orderNumber %>" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Customer</label>
+                <% if (user.role==='user' ) { %>
+                    <input type="text" class="form-control" value="<%= user.full_name %> (<%= user.email %>)" readonly>
+                    <input type="hidden" name="customer_id" value="<%= user.id %>">
+                    <% } else { %>
+                        <select name="customer_id" class="form-control" required>
+                            <option value="">Select Customer</option>
+                            <% customers.forEach(c=> { %>
+                                <option value="<%= c.id %>" <%=(typeof formData !=='undefined' &&
+                                    formData.customer_id==c.id) ? 'selected' : '' %>>
+                                    <%= c.full_name %> (<%= c.email %>)
+                                </option>
+                                <% }) %>
+                        </select>
+                        <% } %>
+            </div>
+        </div>
+
+        <div class="stat-card" style="margin-bottom: var(--space-lg); border: 1px solid var(--gray-light);">
+            <h4 style="margin-bottom: var(--space-md);">Add Products</h4>
+            <div
+                style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: var(--space-sm); align-items: flex-end;">
+                <div>
+                    <label class="form-label">Product</label>
+                    <select id="productSelect" class="form-control">
+                        <option value="">Choose item...</option>
+                        <% products.forEach(p=> { %>
+                            <option value="<%= p.id %>" data-price="<%= p.price %>" data-stock="<%= p.quantity %>">
+                                <%= p.name %> - KSh <%= p.price %> (<%= p.quantity %> in stock)
+                            </option>
+                            <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Quantity</label>
+                    <input type="number" id="quantityInput" class="form-control" value="1" min="1">
+                </div>
+                <div>
+                    <label class="form-label">Subtotal</label>
+                    <input type="text" id="subtotalPreview" class="form-control" value="KSh 0.00" disabled>
+                </div>
+                <button type="button" id="addItemBtn" class="btn btn-primary" style="padding: 10px 15px;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="data-table-container" style="margin-bottom: var(--space-lg); padding: 0;">
+            <table class="data-table" id="itemsTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Items added dynamically -->
+                </tbody>
+            </table>
+            <div id="noItemsMsg" style="text-align: center; padding: var(--space-md); color: var(--gray);">
+                No items added to this order yet.
+            </div>
+        </div>
+
+        <!-- Hidden input for items JSON -->
+        <input type="hidden" name="items" id="itemsHiddenInput">
+
+        <div class="form-row" style="grid-template-columns: 2fr 1fr;">
+            <div class="form-group">
+                <label class="form-label">Shipping Address</label>
+                <textarea name="shipping_address" class="form-control" rows="3" placeholder="Full delivery address..."
+                    required></textarea>
+                <div style="margin-top: var(--space-md);">
+                    <label class="form-label">Order Notes</label>
+                    <textarea name="notes" class="form-control" rows="2"
+                        placeholder="Any special instructions..."></textarea>
+                </div>
+            </div>
+            <div class="stat-card" style="background: var(--light);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Subtotal:</span>
+                    <span id="orderSubtotal">KSh 0.00</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tax (%)</label>
+                    <input type="number" name="tax_percent" id="taxInput" class="form-control" value="0" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Discount (KSh)</label>
+                    <input type="number" name="discount" id="discountInput" class="form-control" value="0" step="0.1">
+                </div>
+                <hr style="margin: var(--space-sm) 0; border: 0; border-top: 2px solid var(--white);">
+                <div
+                    style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem; color: var(--primary);">
+                    <span>Total:</span>
+                    <span id="orderGrandTotal">KSh 0.00</span>
+                </div>
+
+                <div class="form-group" style="margin-top: var(--space-md);">
+                    <label class="form-label">Payment Method</label>
+                    <select name="payment_method" class="form-control" required>
+                        <option value="cash">Cash on Delivery</option>
+                        <option value="mpesa">M-Pesa</option>
+                        <option value="card">Credit Card</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitOrderBtn" disabled>Place Order</button>
+            <a href="/orders" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const productSelect = document.getElementById('productSelect');
+    const quantityInput = document.getElementById('quantityInput');
+    const subtotalPreview = document.getElementById('subtotalPreview');
+    const addItemBtn = document.getElementById('addItemBtn');
+    const itemsTableBody = document.querySelector('#itemsTable tbody');
+    const noItemsMsg = document.getElementById('noItemsMsg');
+    const itemsHiddenInput = document.getElementById('itemsHiddenInput');
+    const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+    // Summary elements
+    const orderSubtotalSpan = document.getElementById('orderSubtotal');
+    const orderGrandTotalSpan = document.getElementById('orderGrandTotal');
+    const taxInput = document.getElementById('taxInput');
+    const discountInput = document.getElementById('discountInput');
+
+    let orderItems = [];
+
+    // Pre-selected product logic
+    const preSelectedProductId = '<%= preSelectedProductId %>';
+
+    // Update preview subtotal
+    function updatePreview() {
+        const selected = productSelect.options[productSelect.selectedIndex];
+        if (selected && selected.value) {
+            const price = parseFloat(selected.dataset.price);
+            const qty = parseInt(quantityInput.value);
+            subtotalPreview.value = 'KSh ' + (price * qty).toFixed(2);
+        } else {
+            subtotalPreview.value = 'KSh 0.00';
+        }
+    }
+
+    productSelect.addEventListener('change', updatePreview);
+    quantityInput.addEventListener('input', updatePreview);
+
+    // Add item to list
+    function addItem(productId, productName, price, quantity, stock) {
+        if (quantity > stock) {
+            alert(`Insufficient stock for ${productName}. Only ${stock} available.`);
+            return;
+        }
+
+        const existing = orderItems.find(item => item.product_id === productId);
+        if (existing) {
+            existing.quantity += quantity;
+            existing.subtotal = existing.quantity * price;
+        } else {
+            orderItems.push({
+                product_id: productId,
+                name: productName,
+                price: price,
+                quantity: quantity,
+                subtotal: price * quantity
+            });
+        }
+
+        renderItems();
+    }
+
+    addItemBtn.addEventListener('click', () => {
+        const selected = productSelect.options[productSelect.selectedIndex];
+        if (!selected || !selected.value) return;
+
+        const productId = parseInt(selected.value);
+        const productName = selected.text.split(' - ')[0];
+        const price = parseFloat(selected.dataset.price);
+        const quantity = parseInt(quantityInput.value);
+        const stock = parseInt(selected.dataset.stock);
+
+        addItem(productId, productName, price, quantity, stock);
+
+        productSelect.value = '';
+        quantityInput.value = 1;
+        updatePreview();
+    });
+
+    function renderItems() {
+        itemsTableBody.innerHTML = '';
+        let subtotal = 0;
+
+        if (orderItems.length === 0) {
+            noItemsMsg.style.display = 'block';
+            submitOrderBtn.disabled = true;
+        } else {
+            noItemsMsg.style.display = 'none';
+            submitOrderBtn.disabled = false;
+        }
+
+        orderItems.forEach((item, index) => {
+            subtotal += item.subtotal;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>KSh ${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td>KSh ${item.subtotal.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn-icon delete" onclick="removeItem(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            itemsTableBody.appendChild(row);
+        });
+
+        calculateTotals(subtotal);
+        itemsHiddenInput.value = JSON.stringify(orderItems);
+    }
+
+    window.removeItem = (index) => {
+        orderItems.splice(index, 1);
+        renderItems();
+    };
+
+    function calculateTotals(subtotal) {
+        const taxPercent = parseFloat(taxInput.value) || 0;
+        const discount = parseFloat(discountInput.value) || 0;
+
+        const taxAmount = subtotal * (taxPercent / 100);
+        const grandTotal = subtotal + taxAmount - discount;
+
+        orderSubtotalSpan.textContent = 'KSh ' + subtotal.toFixed(2);
+        orderGrandTotalSpan.textContent = 'KSh ' + Math.max(0, grandTotal).toFixed(2);
+    }
+
+    taxInput.addEventListener('input', () => {
+        const subtotal = orderItems.reduce((acc, item) => acc + item.subtotal, 0);
+        calculateTotals(subtotal);
+    });
+
+    discountInput.addEventListener('input', () => {
+        const subtotal = orderItems.reduce((acc, item) => acc + item.subtotal, 0);
+        calculateTotals(subtotal);
+    });
+
+    // Auto-add pre-selected product
+    if (preSelectedProductId) {
+        const option = Array.from(productSelect.options).find(opt => opt.value === preSelectedProductId);
+        if (option) {
+            const productId = parseInt(option.value);
+            const productName = option.text.split(' - ')[0];
+            const price = parseFloat(option.dataset.price);
+            const stock = parseInt(option.dataset.stock);
+
+            addItem(productId, productName, price, 1, stock);
+        }
+    }
+</script>

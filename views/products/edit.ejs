@@ -1,0 +1,122 @@
+<div class="form-container">
+    <div class="form-header">
+        <h2>Edit Product</h2>
+        <p>Update product information and pricing for <%= product.name %>.</p>
+    </div>
+
+    <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+        <div class="alert alert-error">
+            <ul style="margin-left: 1.5rem;">
+                <% errors.forEach(error=> { %>
+                    <li>
+                        <%= error.msg %>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+        <% } %>
+
+            <form action="/products/<%= product.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+                <div style="display: flex; gap: var(--space-lg); margin-bottom: var(--space-lg);">
+                    <div
+                        style="width: 120px; height: 120px; background: var(--gray-light); border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0;">
+                        <% if (product.image) { %>
+                            <img src="<%= product.image %>" alt="Product"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            <% } else { %>
+                                <i class="fas fa-box"
+                                    style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--gray); font-size: 3rem;"></i>
+                                <% } %>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="form-group">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" name="name" class="form-control" value="<%= product.name %>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">SKU</label>
+                        <input type="text" class="form-control" value="<%= product.sku %>" disabled>
+                        <small class="form-text">SKU cannot be changed after creation.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category_id" class="form-control" required>
+                            <% categories.forEach(cat=> { %>
+                                <option value="<%= cat.id %>" <%=product.category_id==cat.id ? 'selected' : '' %>><%=
+                                        cat.name %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Selling Price (KSh)</label>
+                        <input type="number" name="price" step="0.01" class="form-control" value="<%= product.price %>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cost Price (KSh)</label>
+                        <input type="number" name="cost_price" step="0.01" class="form-control"
+                            value="<%= product.cost_price %>" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Quantity in Stock</label>
+                        <input type="number" name="quantity" class="form-control" value="<%= product.quantity %>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required>
+                            <% statusOptions.forEach(opt=> { %>
+                                <option value="<%= opt %>" <%=product.status==opt ? 'selected' : '' %>><%=
+                                        opt.replace(/_/g, ' ' ).toUpperCase() %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="4"><%= product.description %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Change Image</label>
+                    <div class="file-upload" onclick="document.getElementById('image-input').click()">
+                        <i class="fas fa-camera"></i>
+                        <p>Click to upload new product image</p>
+                        <input type="file" id="image-input" name="image" class="file-input" accept="image/*">
+                    </div>
+                    <div id="file-name" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);"></div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="featured" <%=product.featured ? 'checked' : '' %>>
+                        Mark as Featured Product
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Product</button>
+                    <a href="/products" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+</div>
+
+<script>
+    document.getElementById('image-input').addEventListener('change', function (e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName ? `Selected: ${fileName}` : '';
+    });
+</script>

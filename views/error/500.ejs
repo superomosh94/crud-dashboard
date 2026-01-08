@@ -1,0 +1,18 @@
+<div class="auth-page">
+    <div class="auth-card" style="text-align: center; max-width: 600px;">
+        <i class="fas fa-server" style="font-size: 5rem; color: var(--danger); margin-bottom: var(--space-md);"></i>
+        <h1 style="font-size: 4rem; color: var(--danger);">500</h1>
+        <h2>Internal Server Error</h2>
+        <p style="color: var(--gray); margin: var(--space-md) 0;">Something went wrong on our end. Please try again
+            later or contact support if the problem persists.</p>
+
+        <% if (error && error.stack) { %>
+            <div
+                style="text-align: left; background: var(--light); padding: var(--space-md); border-radius: var(--radius-md); font-family: monospace; font-size: 0.8rem; overflow: auto; max-height: 200px; margin-bottom: var(--space-md);">
+                <%= error.stack %>
+            </div>
+            <% } %>
+
+                <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+    </div>
+</div>

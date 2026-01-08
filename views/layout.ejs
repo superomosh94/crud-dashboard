@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> | CRUD Dashboard
+    </title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <% if (user) { %>
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <a href="/dashboard" class="logo">
+                        <i class="fas fa-chart-line"></i>
+                        <span class="menu-text">CRUD Dash</span>
+                    </a>
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="/dashboard" class="<%= currentUrl === '/dashboard' ? 'active' : '' %>">
+                            <i class="fas fa-th-large"></i>
+                            <span class="menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <% if (user.role==='admin' || user.role==='manager' ) { %>
+                        <li>
+                            <a href="/users" class="<%= currentUrl.startsWith('/users') ? 'active' : '' %>">
+                                <i class="fas fa-users"></i>
+                                <span class="menu-text">Users</span>
+                            </a>
+                        </li>
+                        <% } %>
+                            <li>
+                                <a href="/products" class="<%= currentUrl.startsWith('/products') ? 'active' : '' %>">
+                                    <i class="fas fa-box"></i>
+                                    <span class="menu-text">Products</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/orders" class="<%= currentUrl.startsWith('/orders') ? 'active' : '' %>">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <span class="menu-text">Orders</span>
+                                </a>
+                            </li>
+                            <% if (user.role==='admin' ) { %>
+                                <li>
+                                    <a href="/settings" class="<%= currentUrl === '/settings' ? 'active' : '' %>">
+                                        <i class="fas fa-cog"></i>
+                                        <span class="menu-text">Settings</span>
+                                    </a>
+                                </li>
+                                <% } %>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <nav class="top-nav">
+                    <div class="breadcrumb">
+                        <a href="/dashboard">Home</a>
+                        <span class="separator">/</span>
+                        <span>
+                            <%= title %>
+                        </span>
+                    </div>
+                    <div class="user-menu">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="Search...">
+                        </div>
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <% if (user.avatar) { %>
+                                    <img src="<%= user.avatar %>" alt="Avatar">
+                                    <% } else { %>
+                                        <%= user.full_name.charAt(0) %>
+                                            <% } %>
+                            </div>
+                            <span class="user-name">
+                                <%= user.full_name %>
+                            </span>
+                            <i class="fas fa-chevron-down"></i>
+                            <div class="dropdown-menu">
+                                <a href="/profile"><i class="fas fa-user-circle"></i> Profile</a>
+                                <% if (user.role==='admin' ) { %>
+                                    <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                                    <% } %>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="content-area">
+                    <!-- Flash Messages -->
+                    <% if (success_msg !='' ) { %>
+                        <div class="alert alert-success">
+                            <%= success_msg %>
+                        </div>
+                        <% } %>
+                            <% if (error_msg !='' ) { %>
+                                <div class="alert alert-error">
+                                    <%= error_msg %>
+                                </div>
+                                <% } %>
+                                    <% if (error !='' ) { %>
+                                        <div class="alert alert-error">
+                                            <%= error %>
+                                        </div>
+                                        <% } %>
+
+                                            <%- body %>
+                </div>
+            </main>
+            <% } else { %>
+                <div style="width: 100%;">
+                    <%- body %>
+                </div>
+                <% } %>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="/js/script.js"></script>
+</body>
+
+</html>

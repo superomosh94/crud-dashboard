@@ -1,0 +1,110 @@
+<div class="table-header">
+    <div class="table-title">
+        <h2>Users</h2>
+        <p>Manage administrative and standard user accounts.</p>
+    </div>
+    <div class="table-actions">
+        <a href="/users/export/csv" class="btn btn-secondary">
+            <i class="fas fa-download"></i> Export CSV
+        </a>
+        <a href="/users/create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New User
+        </a>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <form action="/users" method="GET" class="table-filters">
+        <div class="table-search">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" value="<%= search %>" placeholder="Search users...">
+        </div>
+        <select name="role">
+            <option value="">All Roles</option>
+            <option value="admin" <%=role==='admin' ? 'selected' : '' %>>Admin</option>
+            <option value="manager" <%=role==='manager' ? 'selected' : '' %>>Manager</option>
+            <option value="user" <%=role==='user' ? 'selected' : '' %>>User</option>
+        </select>
+        <select name="status">
+            <option value="">All Statuses</option>
+            <option value="active" <%=status==='active' ? 'selected' : '' %>>Active</option>
+            <option value="inactive" <%=status==='inactive' ? 'selected' : '' %>>Inactive</option>
+            <option value="suspended" <%=status==='suspended' ? 'selected' : '' %>>Suspended</option>
+        </select>
+        <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+        <a href="/users" class="btn btn-secondary btn-sm">Reset</a>
+    </form>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user=> { %>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                            <div class="user-avatar">
+                                <% if (user.avatar) { %>
+                                    <img src="<%= user.avatar %>" alt="Avatar">
+                                    <% } else { %>
+                                        <%= user.full_name.charAt(0) %>
+                                            <% } %>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">
+                                    <%= user.full_name %>
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--gray);">
+                                    <%= user.email %>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">
+                            <%= user.role %>
+                        </span>
+                    </td>
+                    <td>
+                        <span
+                            class="badge badge-<%= user.status === 'active' ? 'success' : user.status === 'inactive' ? 'secondary' : 'danger' %>">
+                            <%= user.status %>
+                        </span>
+                    </td>
+                    <td>
+                        <%= moment(user.created_at).format('MMM DD, YYYY') %>
+                    </td>
+                    <td class="table-actions-cell">
+                        <a href="/users/<%= user.id %>" class="btn-icon view" title="View"><i
+                                class="fas fa-eye"></i></a>
+                        <a href="/users/<%= user.id %>/edit" class="btn-icon edit" title="Edit"><i
+                                class="fas fa-edit"></i></a>
+                        <form action="/users/<%= user.id %>?_method=DELETE" method="POST" style="display: inline;"
+                            onsubmit="return confirm('Are you sure you want to delete this user?')">
+                            <button type="submit" class="btn-icon delete" title="Delete"><i
+                                    class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                <% }) %>
+        </tbody>
+    </table>
+
+    <% if (totalPages> 1) { %>
+        <div class="pagination">
+            <% for(let i=1; i <=totalPages; i++) { %>
+                <a href="/users?page=<%= i %>&search=<%= search %>&role=<%= role %>&status=<%= status %>"
+                    class="<%= currentPage === i ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+                <% } %>
+        </div>
+        <% } %>
+</div>

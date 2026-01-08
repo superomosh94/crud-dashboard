@@ -1,0 +1,132 @@
+<div class="form-container">
+    <div class="form-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h2>User Details</h2>
+            <p>Full information about <%= userDetail.full_name %>'s account.</p>
+        </div>
+        <div class="table-actions">
+            <a href="/users/<%= userDetail.id %>/edit" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit User
+            </a>
+            <a href="/users" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: var(--space-xl); margin-top: var(--space-lg);">
+        <div style="flex: 0 0 200px; text-align: center;">
+            <div class="user-avatar"
+                style="width: 150px; height: 150px; font-size: 4rem; margin: 0 auto 1.5rem; border: 4px solid var(--white); box-shadow: var(--shadow-md);">
+                <% if (userDetail.avatar) { %>
+                    <img src="<%= userDetail.avatar %>" alt="Avatar">
+                    <% } else { %>
+                        <%= userDetail.full_name.charAt(0) %>
+                            <% } %>
+            </div>
+            <span class="badge badge-<%= userDetail.status === 'active' ? 'success' : 'danger' %>"
+                style="font-size: 1rem; padding: 6px 16px;">
+                <%= userDetail.status.toUpperCase() %>
+            </span>
+        </div>
+
+        <div style="flex: 1;">
+            <div class="stat-card" style="margin-bottom: var(--space-md);">
+                <h4
+                    style="color: var(--gray); margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 5px;">
+                    Account Information</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">USERNAME</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= userDetail.username %>
+                        </p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">EMAIL ADDRESS</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= userDetail.email %>
+                        </p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">FULL NAME</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= userDetail.full_name %>
+                        </p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">PHONE</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= userDetail.phone || 'N/A' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h4
+                    style="color: var(--gray); margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 5px;">
+                    Permissions & History</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">USER ROLE</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;"><span class="badge badge-info">
+                                <%= userDetail.role.toUpperCase() %>
+                            </span></p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">ACCOUNT CREATED</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= moment(userDetail.created_at).format('MMMM DD, YYYY HH:mm') %>
+                        </p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray);">LAST LOGIN</label>
+                        <p style="font-size: 1.1rem; margin-top: 4px;">
+                            <%= userDetail.last_login ? moment(userDetail.last_login).fromNow() : 'Never' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% if (ordersCreated && ordersCreated.length> 0) { %>
+        <div style="margin-top: var(--space-xl);">
+            <h3>Recent Orders by this User</h3>
+            <div class="data-table-container" style="margin-top: var(--space-md); padding: 0;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% ordersCreated.forEach(order=> { %>
+                            <tr>
+                                <td>
+                                    <%= order.order_number %>
+                                </td>
+                                <td>
+                                    <%= moment(order.created_at).format('MMM DD, YYYY') %>
+                                </td>
+                                <td>KSh <%= order.grand_total %>
+                                </td>
+                                <td><span
+                                        class="badge badge-<%= order.status === 'completed' ? 'success' : 'warning' %>">
+                                        <%= order.status %>
+                                    </span></td>
+                                <td><a href="/orders/<%= order.id %>" class="btn-icon view"><i
+                                            class="fas fa-eye"></i></a></td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <% } %>
+</div>

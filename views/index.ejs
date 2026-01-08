@@ -1,0 +1,38 @@
+<div
+    style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; text-align: center; padding: var(--space-xl);">
+    <i class="fas fa-chart-line" style="font-size: 5rem; margin-bottom: var(--space-md);"></i>
+    <h1 style="font-size: 3.5rem; margin-bottom: var(--space-sm);">CRUD Dashboard</h1>
+    <p style="font-size: 1.25rem; max-width: 600px; margin-bottom: var(--space-xl); opacity: 0.9;">
+        A complete full-stack admin dashboard for managing users, products, and orders.
+        Built with Node.js, Express, MySQL, and Sequelize.
+    </p>
+    <div style="display: flex; gap: var(--space-md);">
+        <a href="/auth/login" class="btn btn-primary"
+            style="background: white; color: var(--primary); padding: 12px 32px; font-size: 1.1rem;">
+            Launch Dashboard
+        </a>
+        <a href="https://github.com/yourusername/crud-dashboard" target="_blank" class="btn btn-secondary"
+            style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px 32px; font-size: 1.1rem;">
+            View Code on GitHub
+        </a>
+    </div>
+
+    <div
+        style="margin-top: var(--space-xl); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-xl); max-width: 900px;">
+        <div>
+            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: var(--space-sm);"></i>
+            <h3>User Management</h3>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Full CRUD for users with role-based access control.</p>
+        </div>
+        <div>
+            <i class="fas fa-box" style="font-size: 2rem; margin-bottom: var(--space-sm);"></i>
+            <h3>Inventory Tracking</h3>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Manage products, categories, and stock levels.</p>
+        </div>
+        <div>
+            <i class="fas fa-chart-pie" style="font-size: 2rem; margin-bottom: var(--space-sm);"></i>
+            <h3>Sales Analytics</h3>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Visualize performance with interactive charts.</p>
+        </div>
+    </div>
+</div>

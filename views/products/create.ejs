@@ -1,0 +1,122 @@
+<div class="form-container">
+    <div class="form-header">
+        <h2>Add New Product</h2>
+        <p>Create a new product entry in the inventory.</p>
+    </div>
+
+    <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+        <div class="alert alert-error">
+            <ul style="margin-left: 1.5rem;">
+                <% errors.forEach(error=> { %>
+                    <li>
+                        <%= error.msg %>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+        <% } %>
+
+            <form action="/products" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" name="name" class="form-control"
+                        value="<%= typeof formData !== 'undefined' ? formData.name : '' %>" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">SKU (Stock Keeping Unit)</label>
+                        <input type="text" name="sku" class="form-control"
+                            value="<%= typeof formData !== 'undefined' ? formData.sku : '' %>"
+                            placeholder="E.g. ELEC-001">
+                        <small class="form-text">Leave blank to auto-generate.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category_id" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <% categories.forEach(cat=> { %>
+                                <option value="<%= cat.id %>" <%=typeof formData !=='undefined' &&
+                                    formData.category_id==cat.id ? 'selected' : '' %>><%= cat.name %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Selling Price</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 12px; top: 10px; color: var(--gray);">KSh</span>
+                            <input type="number" name="price" step="0.01" class="form-control"
+                                style="padding-left: 30px;"
+                                value="<%= typeof formData !== 'undefined' ? formData.price : '0.00' %>" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cost Price</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 12px; top: 10px; color: var(--gray);">KSh</span>
+                            <input type="number" name="cost_price" step="0.01" class="form-control"
+                                style="padding-left: 30px;"
+                                value="<%= typeof formData !== 'undefined' ? formData.cost_price : '0.00' %>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Initial Quantity</label>
+                        <input type="number" name="quantity" class="form-control"
+                            value="<%= typeof formData !== 'undefined' ? formData.quantity : '0' %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required>
+                            <% statusOptions.forEach(opt=> { %>
+                                <option value="<%= opt %>" <%=typeof formData !=='undefined' && formData.status==opt
+                                    ? 'selected' : '' %>><%= opt.replace(/_/g, ' ' ).toUpperCase() %>
+                                </option>
+                                <% }) %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control"
+                        rows="4"><%= typeof formData !== 'undefined' ? formData.description : '' %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Product Image</label>
+                    <div class="file-upload" onclick="document.getElementById('image-input').click()">
+                        <i class="fas fa-camera"></i>
+                        <p>Click to upload product image</p>
+                        <input type="file" id="image-input" name="image" class="file-input" accept="image/*">
+                    </div>
+                    <div id="file-name" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);"></div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="featured" <%=typeof formData !=='undefined' &&
+                            formData.featured==='on' ? 'checked' : '' %>>
+                        Mark as Featured Product
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                    <a href="/products" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+</div>
+
+<script>
+    document.getElementById('image-input').addEventListener('change', function (e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName ? `Selected: ${fileName}` : '';
+    });
+</script>

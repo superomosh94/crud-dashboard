@@ -1,0 +1,108 @@
+<div class="form-container">
+    <div class="form-header">
+        <h2>Edit User</h2>
+        <p>Modify user account details and permissions.</p>
+    </div>
+
+    <% if (typeof errors !=='undefined' && errors.length> 0) { %>
+        <div class="alert alert-error">
+            <ul style="margin-left: 1.5rem;">
+                <% errors.forEach(error=> { %>
+                    <li>
+                        <%= error.msg %>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+        <% } %>
+
+            <form action="/users/<%= userDetail.id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+                <div style="text-align: center; margin-bottom: var(--space-lg);">
+                    <div class="user-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 0.5rem;">
+                        <% if (userDetail.avatar) { %>
+                            <img src="<%= userDetail.avatar %>" alt="Avatar">
+                            <% } else { %>
+                                <%= userDetail.full_name.charAt(0) %>
+                                    <% } %>
+                    </div>
+                    <p style="font-weight: 600;">
+                        <%= userDetail.username %>
+                    </p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" class="form-control" value="<%= userDetail.full_name %>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="phone" class="form-control" value="<%= userDetail.phone %>">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-control" required>
+                            <option value="user" <%=userDetail.role==='user' ? 'selected' : '' %>>Standard User</option>
+                            <option value="manager" <%=userDetail.role==='manager' ? 'selected' : '' %>>Manager</option>
+                            <option value="admin" <%=userDetail.role==='admin' ? 'selected' : '' %>>Administrator
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required>
+                            <option value="active" <%=userDetail.status==='active' ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%=userDetail.status==='inactive' ? 'selected' : '' %>>Inactive
+                            </option>
+                            <option value="suspended" <%=userDetail.status==='suspended' ? 'selected' : '' %>>Suspended
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Update Avatar</label>
+                    <div class="file-upload" onclick="document.getElementById('avatar-input').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload new image</p>
+                        <input type="file" id="avatar-input" name="avatar" class="file-input" accept="image/*">
+                    </div>
+                    <div id="file-name" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                    <a href="/users" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+
+            <div
+                style="margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--gray-light);">
+                <h3 style="color: var(--danger);">Danger Zone</h3>
+                <p style="color: var(--gray); margin-bottom: var(--space-md);">Changing password or deleting account is
+                    irreversible.</p>
+
+                <form action="/users/<%= userDetail.id %>/change-password" method="POST"
+                    style="margin-bottom: var(--space-md);">
+                    <div class="form-row" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control" placeholder="••••••••"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary">Reset Password</button>
+                    </div>
+                </form>
+            </div>
+</div>
+
+<script>
+    document.getElementById('avatar-input').addEventListener('change', function (e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : '';
+        document.getElementById('file-name').textContent = fileName ? `Selected: ${fileName}` : '';
+    });
+</script>

@@ -1,0 +1,171 @@
+<div class="form-container" style="max-width: 1000px;">
+    <div class="form-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h2>Order Details #<%= order.order_number %>
+            </h2>
+            <p>Ordered on <%= moment(order.created_at).format('MMMM DD, YYYY') %> at <%=
+                        moment(order.created_at).format('HH:mm') %>
+            </p>
+        </div>
+        <div class="table-actions">
+            <a href="/orders/<%= order.id %>/invoice" target="_blank" class="btn btn-secondary">
+                <i class="fas fa-file-invoice"></i> View Invoice
+            </a>
+            <% if (order.status !=='cancelled' && order.status !=='completed' ) { %>
+                <form action="/orders/<%= order.id %>/cancel" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                </form>
+                <% } %>
+                    <a href="/orders" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; margin-top: var(--space-lg);">
+        <div>
+            <div class="data-table-container" style="padding: 0; margin-bottom: var(--space-lg);">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach(item=> { %>
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                        <div
+                                            style="width: 40px; height: 40px; background: var(--gray-light); border-radius: var(--radius-sm); overflow: hidden;">
+                                            <% if (item.product && item.product.image) { %>
+                                                <img src="<%= item.product.image %>" alt="Product"
+                                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                                <% } else { %>
+                                                    <i class="fas fa-box"
+                                                        style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--gray);"></i>
+                                                    <% } %>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 500;">
+                                                <%= item.product ? item.product.name : 'Unknown Product' %>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: var(--gray);">
+                                                <%= item.product ? item.product.sku : 'N/A' %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>KSh <%= item.unit_price %>
+                                </td>
+                                <td>
+                                    <%= item.quantity %>
+                                </td>
+                                <td>KSh <%= item.subtotal %>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="stat-card">
+                <h4
+                    style="margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px;">
+                    Order Timeline & Notes</h4>
+                <div style="color: var(--dark);">
+                    <strong>Customer Notes:</strong>
+                    <p style="margin-top: 5px; font-style: italic; color: var(--gray);">
+                        <%= order.notes || 'No notes provided for this order.' %>
+                    </p>
+                </div>
+                <div style="margin-top: var(--space-md);">
+                    <strong>Shipping Address:</strong>
+                    <p style="margin-top: 5px;">
+                        <%= order.shipping_address %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="stat-card" style="margin-bottom: var(--space-md);">
+                <h4
+                    style="margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px;">
+                    Order Summary</h4>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span style="font-weight: 600;">KSh <%= order.total_amount %></span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span style="font-weight: 600;">KSh <%= order.tax %></span>
+                </div>
+                <div class="summary-row">
+                    <span>Discount</span>
+                    <span style="font-weight: 600;">-KSh <%= order.discount %></span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total</span>
+                    <span>KSh <%= order.grand_total %></span>
+                </div>
+            </div>
+
+            <div class="stat-card" style="margin-bottom: var(--space-md);">
+                <h4
+                    style="margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px;">
+                    Order Status</h4>
+                <div style="margin-bottom: var(--space-sm);">
+                    <label style="font-size: 0.85rem; color: var(--gray); display: block;">FULFILLMENT STATUS</label>
+                    <span class="badge badge-<%= 
+                        order.status === 'completed' ? 'success' : 
+                        order.status === 'pending' ? 'warning' : 
+                        order.status === 'cancelled' ? 'danger' : 'info' 
+                    %>" style="margin-top: 4px;">
+                        <%= order.status.toUpperCase() %>
+                    </span>
+                </div>
+                <div style="margin-bottom: var(--space-sm);">
+                    <label style="font-size: 0.85rem; color: var(--gray); display: block;">PAYMENT STATUS</label>
+                    <span class="badge badge-<%= order.payment_status === 'paid' ? 'success' : 'secondary' %>"
+                        style="margin-top: 4px;">
+                        <%= order.payment_status.toUpperCase() %>
+                    </span>
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; color: var(--gray); display: block;">PAYMENT METHOD</label>
+                    <p style="font-weight: 600; margin-top: 4px;">
+                        <%= order.payment_method.replace(/_/g, ' ' ).toUpperCase() %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h4
+                    style="margin-bottom: var(--space-md); border-bottom: 1px solid var(--gray-light); padding-bottom: 8px;">
+                    Customer Info</h4>
+                <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                    <div class="user-avatar" style="width: 40px; height: 40px;">
+                        <% if (order.customer && order.customer.avatar) { %>
+                            <img src="<%= order.customer.avatar %>" alt="Avatar">
+                            <% } else { %>
+                                <%= order.customer ? order.customer.full_name.charAt(0) : 'G' %>
+                                    <% } %>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">
+                            <%= order.customer ? order.customer.full_name : 'Guest Customer' %>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--gray);">
+                            <%= order.customer ? order.customer.email : 'No email provided' %>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--gray);">
+                            <%= order.customer ? order.customer.phone : '' %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

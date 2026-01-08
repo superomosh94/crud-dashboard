@@ -1,0 +1,241 @@
+<div class="dashboard-header" style="margin-bottom: var(--space-lg);">
+    <h1>Welcome back, <%= user.full_name %>!</h1>
+    <p style="color: var(--gray);">Here's what's happening with your business today.</p>
+</div>
+
+<!-- Stats Overview -->
+<div class="dashboard-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon primary">
+                <i class="fas fa-users"></i>
+            </div>
+            <span class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> 12%
+            </span>
+        </div>
+        <div class="stat-number">
+            <%= stats.totalUsers %>
+        </div>
+        <div class="stat-title">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon success">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <span class="stat-change positive">
+                <i class="fas fa-arrow-up"></i> 8%
+            </span>
+        </div>
+        <div class="stat-number">
+            <%= stats.totalOrders %>
+        </div>
+        <div class="stat-title">Total Orders</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon warning">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <span class="stat-change negative">
+                <i class="fas fa-arrow-down"></i> 3%
+            </span>
+        </div>
+        <div class="stat-number">KSh <%= parseFloat(stats.totalRevenue).toLocaleString() %>
+        </div>
+        <div class="stat-title">Total Revenue</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon info">
+                <i class="fas fa-box"></i>
+            </div>
+            <span class="stat-change">
+                <i class="fas fa-minus"></i> 0%
+            </span>
+        </div>
+        <div class="stat-number">
+            <%= stats.totalProducts %>
+        </div>
+        <div class="stat-title">Products in Stock</div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>Sales Overview</h3>
+            <div class="chart-actions">
+                <select id="salesPeriod">
+                    <option value="6">Last 6 Months</option>
+                    <option value="12">Last 12 Months</option>
+                </select>
+            </div>
+        </div>
+        <canvas id="salesChart" height="100"></canvas>
+    </div>
+
+    <div class="recent-activity-card">
+        <div class="chart-header">
+            <h3>Recent Activity</h3>
+            <a href="#" style="font-size: 0.85rem; color: var(--primary);">View All</a>
+        </div>
+        <ul class="activity-list">
+            <% recentOrders.forEach(order=> { %>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-shopping-bag" style="color: var(--primary);"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            New order <strong>#<%= order.order_number %></strong> by <%= order.customer.full_name %>
+                        </div>
+                        <div class="activity-time">
+                            <%= moment(order.created_at).fromNow() %>
+                        </div>
+                    </div>
+                </li>
+                <% }) %>
+                    <% recentUsers.forEach(u=> { %>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus" style="color: var(--success);"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">
+                                    New user registered: <strong>
+                                        <%= u.username %>
+                                    </strong>
+                                </div>
+                                <div class="activity-time">
+                                    <%= moment(u.created_at).fromNow() %>
+                                </div>
+                            </div>
+                        </li>
+                        <% }) %>
+        </ul>
+    </div>
+</div>
+
+<!-- Tables Section -->
+<div class="dashboard-grid">
+    <div class="data-table-container">
+        <div class="table-header">
+            <h3>Recent Orders</h3>
+            <a href="/orders" class="btn btn-secondary btn-sm">View All Orders</a>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% recentOrders.forEach(order=> { %>
+                    <tr>
+                        <td>
+                            <%= order.order_number %>
+                        </td>
+                        <td>
+                            <%= order.customer.full_name %>
+                        </td>
+                        <td>KSh <%= order.grand_total %>
+                        </td>
+                        <td>
+                            <span class="badge badge-<%= 
+                                order.status === 'completed' ? 'success' : 
+                                order.status === 'pending' ? 'warning' : 
+                                order.status === 'cancelled' ? 'danger' : 'info' 
+                            %>">
+                                <%= order.status %>
+                            </span>
+                        </td>
+                        <td class="table-actions-cell">
+                            <a href="/orders/<%= order.id %>" class="btn-icon view"><i class="fas fa-eye"></i></a>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="data-table-container">
+        <div class="table-header">
+            <h3>Low Stock Products</h3>
+            <a href="/products" class="btn btn-secondary btn-sm">Manage Inventory</a>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% lowStockProducts.forEach(product=> { %>
+                    <tr>
+                        <td>
+                            <%= product.name %>
+                        </td>
+                        <td>
+                            <%= product.category ? product.category.name : 'N/A' %>
+                        </td>
+                        <td style="color: var(--danger); font-weight: 600;">
+                            <%= product.quantity %>
+                        </td>
+                        <td>
+                            <span class="badge badge-danger">Low Stock</span>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Sales Chart Implementation
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesData = <%- JSON.stringify(monthlySales) %>;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: salesData.map(item => moment(item.month).format('MMM YYYY')),
+            datasets: [{
+                label: 'Monthly Sales (KSh)',
+                data: salesData.map(item => item.total),
+                borderColor: '#4361ee',
+                backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#4361ee',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [5, 5] }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>

@@ -1,0 +1,52 @@
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-chart-line"></i>
+            <h1>CRUD Dashboard</h1>
+            <p>Welcome back! Please login to your account.</p>
+        </div>
+
+        <% if (success_msg !='' ) { %>
+            <div class="alert alert-success">
+                <%= success_msg %>
+            </div>
+            <% } %>
+                <% if (error_msg !='' ) { %>
+                    <div class="alert alert-error">
+                        <%= error_msg %>
+                    </div>
+                    <% } %>
+
+                        <form action="/auth/login" method="POST">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="admin@crud.com"
+                                    required autofocus>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="••••••••"
+                                    required>
+                            </div>
+                            <div class="form-group"
+                                style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-md);">
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer;">
+                                    <input type="checkbox" name="remember"> Remember me
+                                </label>
+                                <a href="#"
+                                    style="font-size: 0.9rem; color: var(--primary); text-decoration: none;">Forgot
+                                    Password?</a>
+                            </div>
+                            <button type="submit" class="btn btn-primary"
+                                style="width: 100%; margin-top: var(--space-lg); justify-content: center;">
+                                Login to Dashboard
+                            </button>
+                        </form>
+
+                        <div
+                            style="margin-top: var(--space-lg); text-align: center; font-size: 0.9rem; color: var(--gray);">
+                            <p>Don't have an account? Contact your administrator.</p>
+                        </div>
+    </div>
+</div>
