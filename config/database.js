@@ -6,8 +6,9 @@ const sequelize = new Sequelize(
     process.env.DB_PASSWORD,
     {
         host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
+        port: process.env.DB_PORT || 3306,
         dialect: 'mysql',
+        dialectModule: require('mysql2'), // Required for Vercel
         logging: false,
         pool: {
             max: 5,

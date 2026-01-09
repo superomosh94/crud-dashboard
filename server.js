@@ -15,10 +15,8 @@ const requiredEnv = ['DB_NAME', 'DB_USER', 'DB_HOST', 'DB_PORT'];
 const missingEnv = requiredEnv.filter(env => !process.env[env]);
 
 if (missingEnv.length > 0) {
-    console.error('❌ Missing required environment variables:', missingEnv.join(', '));
-    if (process.env.NODE_ENV === 'production') {
-        console.error('Core environment variables are missing. The app may not function correctly.');
-    }
+    console.error('CRITICAL: ❌ Missing required environment variables:', missingEnv.join(', '));
+    console.error('Please check your Vercel Project Settings > Environment Variables.');
 } else {
     console.log('✅ Environment variables validated');
 }
