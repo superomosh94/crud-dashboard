@@ -10,6 +10,19 @@ const moment = require('moment');
 const expressLayouts = require('express-ejs-layouts');
 const morgan = require('morgan');
 
+// Validate Environment Variables
+const requiredEnv = ['DB_NAME', 'DB_USER', 'DB_HOST', 'DB_PORT'];
+const missingEnv = requiredEnv.filter(env => !process.env[env]);
+
+if (missingEnv.length > 0) {
+    console.error('❌ Missing required environment variables:', missingEnv.join(', '));
+    if (process.env.NODE_ENV === 'production') {
+        console.error('Core environment variables are missing. The app may not function correctly.');
+    }
+} else {
+    console.log('✅ Environment variables validated');
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -38,15 +51,29 @@ app.use('/api/', limiter);
 const sequelize = require('./config/database');
 
 // Test DB Connection
-sequelize.authenticate()
-    .then(() => console.log('✅ Database connected'))
-    .catch(err => console.error('❌ Database error:', err));
+console.log('--- Database Initialization ---');
+console.log(`Connecting to ${process.env.DB_NAME} at ${process.env.DB_HOST}:${process.env.DB_PORT}...`);
 
-// Sync models
-const { sequelize: db } = require('./models/associations');
-db.sync({ alter: process.env.NODE_ENV === 'development' })
-    .then(() => console.log('✅ Models synced'))
-    .catch(err => console.error('❌ Sync error:', err));
+sequelize.authenticate()
+    .then(() => {
+        console.log('✅ Database connection established successfully');
+
+        // Sync models after successful authentication
+        const { sequelize: db } = require('./models/associations');
+        return db.sync({ alter: process.env.NODE_ENV === 'development' });
+    })
+    .then(() => {
+        console.log('✅ Models synced successfully');
+    })
+    .catch(err => {
+        console.error('❌ Database Initialization Error:');
+        console.error('Message:', err.message);
+        if (err.name === 'SequelizeConnectionRefusedError') {
+            console.error('Hint: The database server might be unreachable or the port is wrong.');
+        } else if (err.name === 'SequelizeAccessDeniedError') {
+            console.error('Hint: Check your database username and password.');
+        }
+    });
 
 // Session middleware
 app.use(session({
