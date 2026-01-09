@@ -13,6 +13,9 @@ const morgan = require('morgan');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Export the app for Vercel
+module.exports = app;
+
 // Logging
 app.use(morgan('dev'));
 app.use(compression()); // Added compression middleware here as per instruction
@@ -113,7 +116,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// Start server only if not in Vercel environment
+if (process.env.VERCEL !== '1' && !process.env.NOW_REGION) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+}
